@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -40,13 +42,17 @@ fun LoginScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
     val context = LocalContext.current
-
     val auth = FirebaseAuth.getInstance()
+    val gradientColors = listOf(
+        Color(0xFF1A237E),
+        Color(0xFF2962FF)
+    )
+    val backgroundBrush = Brush.verticalGradient(colors = gradientColors)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFEFEFEF))
+            .background(backgroundBrush)
             .padding(16.dp)
     ) {
         Column(
@@ -55,21 +61,18 @@ fun LoginScreen(navController: NavController) {
                 .fillMaxWidth()
                 .padding(top = 80.dp)
         ) {
-
             Text(
                 text = "Login",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A237E)
+                color = Color.White
             )
-
             Text(
                 text = "Log in to view your attendance QR",
                 fontSize = 15.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
+                color = Color.LightGray,
+                modifier = Modifier.padding(top = 4.dp, bottom = 40.dp)
             )
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -119,7 +122,8 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .height(50.dp),
-                shape = RoundedCornerShape(50)
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E)) // Darker blue for button
             ) {
                 Text(text = "Login", fontSize = 16.sp)
             }
@@ -133,9 +137,8 @@ fun LoginScreen(navController: NavController) {
                     }
                 }
             ) {
-                Text("Don't have an account? Sign Up")
+                Text("Don't have an account? Sign Up", color = Color.LightGray)
             }
-
             LaunchedEffect(error) {
                 if (error.isNotEmpty()) {
                     Toast.makeText(context, error, Toast.LENGTH_LONG).show()
@@ -145,4 +148,3 @@ fun LoginScreen(navController: NavController) {
         }
     }
 }
-
