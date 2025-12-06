@@ -118,32 +118,42 @@ fun SignUpScreen(navController: NavController) {
                 Button(
                     onClick = {
                         if (name.isNotEmpty() && studentNumber.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-                            val ref = FirebaseDatabase
-                                .getInstance("https://cics-smartpass-default-rtdb.firebaseio.com")
-                                .reference.child("users")
+                            val auth = FirebaseAuth.getInstance()
+                            auth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener { authTask ->
+                                    if (authTask.isSuccessful) {
+                                        val firebaseUser = authTask.result?.user
+                                        val uid = firebaseUser?.uid
 
-                            val userId = ref.push().key
+                                        if (uid != null) {
+                                            val ref = FirebaseDatabase
+                                                .getInstance("https://cics-smartpass-default-rtdb.firebaseio.com")
+                                                .reference.child("users")
 
-                            if (userId != null) {
-                                val userData = mapOf(
-                                    "name" to name,
-                                    "studentNumber" to studentNumber,
-                                    "email" to email,
-                                    "password" to password
-                                )
+                                            val userData = mapOf(
+                                                "name" to name,
+                                                "studentNumber" to studentNumber,
+                                                "email" to email
+                                            )
 
-                                ref.child(userId).setValue(userData)
-                                    .addOnSuccessListener {
-                                        navController.navigate("login") {
-                                            popUpTo("signup") { inclusive = true }
+                                            ref.child(uid).setValue(userData)
+                                                .addOnSuccessListener {
+                                                    Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
+                                                    navController.navigate("login") {
+                                                        popUpTo("signup") { inclusive = true }
+                                                    }
+                                                }
+                                                .addOnFailureListener { dbError ->
+                                                    error = "Database Error: ${dbError.message}"
+                                                }
                                         }
+                                    } else {
+                                        error = "Sign Up Failed: ${authTask.exception?.message}"
                                     }
-                                    .addOnFailureListener {
-                                        error = "Failed: ${it.message}"
-                                    }
-                            }
-
-                        } else error = "Please fill all fields"
+                                }
+                        } else {
+                            error = "Please fill all fields"
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
